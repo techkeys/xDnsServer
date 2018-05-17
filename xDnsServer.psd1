@@ -1,6 +1,6 @@
 @{
 # Version number of this module.
-ModuleVersion = '1.7.0.0'
+moduleVersion = '1.10.0.0'
 
 # ID used to uniquely identify this module
 GUID = '5f70e6a1-f1b2-4ba0-8276-8967d43a7ec2'
@@ -47,10 +47,14 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = '* Unit tests updated to use standard unit test templates.
-* MSFT_xDnsServerZoneTransfer: Added unit tests.
-                               Updated to meet Style Guidelines.
-* MSFT_xDnsARecord: Removed hard coding of Localhost computer name to eliminate PSSA rule violation.
+        ReleaseNotes = '* Changes to xDnsServerADZone
+  * Fixed bug introduced by [49](https://github.com/PowerShell/xDnsServer/pull/49). Previously, CimSessions were always used
+  regardless of connecting to a remote machine or the local machine.  Now CimSessions are only utilized when a computername or
+  computername and credential are used. ([issue 53](https://github.com/PowerShell/xDnsServer/issues/53)).
+  [Michael Fyffe (@TraGicCode)](https://github.com/TraGicCode)
+* Fixed all PSSA rule warnings. [Michael Fyffe (@TraGicCode)](https://github.com/TraGicCode)
+* Fix DsAvailable key missing ([66](https://github.com/PowerShell/xDnsServer/issues/66)).
+  [Claudio Spizzi (@claudiospizzi)](https://github.com/claudiospizzi)
 
 '
 
@@ -58,6 +62,9 @@ PrivateData = @{
 
 } # End of PrivateData hashtable
 }
+
+
+
 
 
 

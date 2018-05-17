@@ -1,21 +1,22 @@
-﻿function Get-TargetResource
+function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Zone,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Target,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure = 'Present'
@@ -23,7 +24,8 @@
     Write-Warning -Message "DSC Resource xDnsARecord has been replaced by xDNSRecord, and will be removed in a future version"
     Write-Verbose "Looking up DNS record for $Name in $Zone"
     $record = Get-DnsServerResourceRecord -ZoneName $Zone -Name $Name -ErrorAction SilentlyContinue
-    if ($record -eq $null) {
+    if ($null -eq $record)
+    {
         return @{
             Name = $Name;
             Zone = $Zone;
@@ -47,23 +49,25 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Zone,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Target,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure = 'Present'
     )
-    if ($Ensure -eq 'Present') {
+    if ($Ensure -eq 'Present')
+    {
         Write-Verbose "Creating for DNS $Target in $Zone"
         Add-DnsServerResourceRecordA -IPv4Address $Target -Name $Name -ZoneName $Zone
     }
@@ -80,18 +84,19 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Name,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Zone,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $Target,
 
+        [Parameter()]
         [ValidateSet('Present','Absent')]
         [System.String]
         $Ensure = 'Present'
@@ -99,8 +104,14 @@ function Test-TargetResource
 
     Write-Verbose "Testing for DNS $Name in $Zone"
     $result = @(Get-TargetResource @PSBoundParameters)
-    if ($Ensure -ne $result.Ensure) { return $false }
-    elseif ($Ensure -eq 'Present' -and ($result.Target -ne $Target)) { return $false }
+    if ($Ensure -ne $result.Ensure)
+    {
+        return $false 
+    }
+    elseif ($Ensure -eq 'Present' -and ($result.Target -ne $Target)) 
+    { 
+        return $false 
+    }
     return $true
 }
 

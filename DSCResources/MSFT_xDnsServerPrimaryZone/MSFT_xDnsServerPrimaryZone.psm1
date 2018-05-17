@@ -21,29 +21,36 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$Name,
+        [System.String]
+        $Name,
 
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [System.String]$ZoneFile = "$Name.dns",
+        [System.String]
+        $ZoneFile = "$Name.dns",
 
+        [Parameter()]
         [ValidateSet('None','NonsecureAndSecure')]
-        [System.String]$DynamicUpdate = 'None',
+        [System.String]
+        $DynamicUpdate = 'None',
         
+        [Parameter()]
         [ValidateSet('Present','Absent')]
-        [System.String]$Ensure = 'Present'
+        [System.String]
+        $Ensure = 'Present'
     )
 
-    Assert-Module -ModuleName 'DNSServer';
+    Assert-Module -Name 'DNSServer';
     Write-Verbose ($LocalizedData.CheckingZoneMessage -f $Name, $Ensure);
     $dnsServerZone = Get-DnsServerZone -Name $Name -ErrorAction SilentlyContinue;
 
     $targetResource = @{
-        Name = $dnsServerZone.Name;
+        Name = $dnsServerZone.ZoneName;
         ZoneFile = $dnsServerZone.ZoneFile;
         DynamicUpdate = $dnsServerZone.DynamicUpdate;
-        Ensure = if ($dnsServerZone -eq $null) { 'Absent' } else { 'Present' };
+        Ensure = if ($null -eq $dnsServerZone) { 'Absent' } else { 'Present' };
     }
 
     return $targetResource;
@@ -56,18 +63,25 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$Name,
+        [System.String]
+        $Name,
 
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [System.String]$ZoneFile = "$Name.dns",
+        [System.String]
+        $ZoneFile = "$Name.dns",
 
+        [Parameter()]
         [ValidateSet('None','NonsecureAndSecure')]
-        [System.String]$DynamicUpdate = 'None',
+        [System.String]
+        $DynamicUpdate = 'None',
         
+        [Parameter()]
         [ValidateSet('Present','Absent')]
-        [System.String]$Ensure = 'Present'
+        [System.String]
+        $Ensure = 'Present'
     )
 
     $targetResource = Get-TargetResource @PSBoundParameters;
@@ -114,23 +128,31 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
-        [System.String]$Name,
+        [System.String]
+        $Name,
 
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [System.String]$ZoneFile = "$Name.dns",
+        [System.String]
+        $ZoneFile = "$Name.dns",
 
+        [Parameter()]
         [ValidateSet('None','NonsecureAndSecure')]
-        [System.String]$DynamicUpdate = 'None',
+        [System.String]
+        $DynamicUpdate = 'None',
         
+        [Parameter()]
         [ValidateSet('Present','Absent')]
-        [System.String]$Ensure = 'Present'
+        [System.String]
+        $Ensure = 'Present'
     )
 
-    Assert-Module -ModuleName 'DNSServer';
+    Assert-Module -Name 'DNSServer';
 
-    if ($Ensure -eq 'Present') {
+    if ($Ensure -eq 'Present') 
+    {
         Write-Verbose ($LocalizedData.CheckingZoneMessage -f $Name, $Ensure);
         $dnsServerZone = Get-DnsServerZone -Name $Name -ErrorAction SilentlyContinue;
         if ($dnsServerZone)
