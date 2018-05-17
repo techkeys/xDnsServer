@@ -43,20 +43,8 @@ function Get-TargetResource
     )
     Assert-Module -ModuleName 'DNSServer'
     Write-Verbose ($LocalizedData.CheckingZoneMessage -f $Name, $Ensure)
-    $cimSessionParams = @{ErrorAction = 'SilentlyContinue'}
-    if ($ComputerName)
-    {
-        $cimSessionParams += @{ComputerName = $ComputerName}
-    }
-    else
-    {
-        $cimSessionParams += @{ComputerName = $env:COMPUTERNAME}
-    }
-    if ($Credential)
-    {
-        $cimSessionParams += @{Credential = $Credential}
-    }
-    $cimSession = New-CimSession @cimSessionParams
+    
+    $cimSession = Get-xDnsServerCimSession -ComputerName $ComputerName -Credential $Credential
     $getParams = @{
         Name = $Name
         CimSession = $cimSession
@@ -69,7 +57,6 @@ function Get-TargetResource
         ReplicationScope = $dnsServerZone.ReplicationScope
         DirectoryPartitionName = $dnsServerZone.DirectoryPartitionName
         Ensure = if ($dnsServerZone -eq $null) { 'Absent' } else { 'Present' }
-        CimSession = $cimSession
     }
     return $targetResource
 } #end function Get-TargetResource
@@ -168,14 +155,16 @@ function Set-TargetResource
     )
     Assert-Module -ModuleName 'DNSServer'
     $targetResource = Get-TargetResource @PSBoundParameters
+    $cimSession = Get-xDnsServerCimSession -ComputerName $ComputerName -Credential $Credential
     if ($Ensure -eq 'Present')
     {
         if ($targetResource.Ensure -eq 'Present')
         {
             ## Update the existing zone
+            
             $updateParams = @{
                 Name = $targetResource.Name
-                CimSession = $targetResource.CimSession
+                CimSession = $cimSession
             }
             if ($targetResource.DynamicUpdate -ne $DynamicUpdate)
             {
@@ -202,7 +191,7 @@ function Set-TargetResource
                 Name = $Name
                 DynamicUpdate = $DynamicUpdate
                 ReplicationScope = $ReplicationScope
-                CimSession = $targetResource.CimSession
+                CimSession = $cimSession
             }
             if ($DirectoryPartitionName)
             {
@@ -220,3 +209,26 @@ function Set-TargetResource
         Remove-DnsServerZone -Name $targetResource.Name -ComputerName $ComputerName -Force
     }
 } #end function Set-TargetResource
+
+function Get-xDnsServerCimSession 
+{
+    param(
+        [System.String]$ComputerName,
+
+        [pscredential]$Credential
+    )
+    $cimSessionParams = @{ErrorAction = 'SilentlyContinue'}
+    if ($ComputerName)
+    {
+        $cimSessionParams += @{ComputerName = $ComputerName}
+    }
+    else
+    {
+        $cimSessionParams += @{ComputerName = $env:COMPUTERNAME}
+    }
+    if ($Credential)
+    {
+        $cimSessionParams += @{Credential = $Credential}
+    }
+    return New-CimSession @cimSessionParams
+}
